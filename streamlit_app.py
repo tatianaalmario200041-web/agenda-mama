@@ -26,7 +26,7 @@ st.markdown(
         padding: 22px;
         border-radius: 20px;
         text-align: center;
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: bold;
         margin-bottom: 20px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -37,7 +37,7 @@ st.markdown(
         padding: 22px;
         border-radius: 20px;
         text-align: center;
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: bold;
         margin-bottom: 20px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -69,7 +69,7 @@ st.markdown(
         display: inline-block;
         margin-bottom: 10px;
     }
-    p, label, span, div, select, input {
+    p, label, span, div, input {
         font-size: 1.3rem !important;
     }
     .stButton>button {
@@ -96,21 +96,39 @@ if "citas" not in st.session_state:
         }
     ]
 
-# --- BLOQUE DE ESTADO DINÁMICO ---
+# --- CONTROL DE MES ACTIVO EN SESIÓN ---
 hoy = datetime.date.today()
+if "mes_activo" not in st.session_state:
+    st.session_state.mes_activo = hoy.month
+if "anio_activo" not in st.session_state:
+    st.session_state.anio_activo = hoy.year
+
+# --- BLOQUE DE ESTADO DINÁMICO DETALLADO ---
 manana = hoy + datetime.timedelta(days=1)
 
-hay_cita_mañana = any(c["fecha"] == manana for c in st.session_state.citas)
-hay_cita_hoy = any(c["fecha"] == hoy for c in st.session_state.citas)
+cita_hoy = next((c for c in st.session_state.citas if c["fecha"] == hoy), None)
+cita_manana = next(
+    (c for c in st.session_state.citas if c["fecha"] == manana), None
+)
 
-if hay_cita_hoy:
+if cita_hoy:
     st.markdown(
-        '<div class="status-card-urgente">🚨 ¡ATENCIÓN: Hoy tienes una cita programada! 🚨</div>',
+        f"""
+        <div class="status-card-urgente">
+            🚨 ¡ATENCIÓN HOY! 🚨<br>
+            📌 <b>{cita_hoy['titulo']}</b> a las <b>{cita_hoy['hora']}</b>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
-elif hay_cita_mañana:
+elif cita_manana:
     st.markdown(
-        '<div class="status-card-urgente">⚠️ Mañana tienes una cita importante ⚠️</div>',
+        f"""
+        <div class="status-card-urgente">
+            ⚠️ MAÑANA TIENES CITA ⚠️<br>
+            📌 <b>{cita_manana['titulo']}</b> a las <b>{cita_manana['hora']}</b>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 else:
@@ -131,55 +149,75 @@ st.markdown(
 
 st.divider()
 
-# --- SELECTOR DE MES PARA EL CALENDARIO ---
-st.markdown("### 🗓️ Selector de Mes y Calendario", unsafe_allow_html=True)
+# --- NAVEGACIÓN DE MESES CON BOTONES (SIN DESPLETABLES) ---
+meses_nombres = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+]
 
-col1, col2 = st.columns(2)
-with col1:
-    anio_seleccionado = st.selectbox(
-        "Año:", [hoy.year, hoy.year + 1], index=0
-    )
-with col2:
-    meses_nombres = [
-        "Enero",
-        "Febrero",
-        "Marzo",
-        "Abril",
-        "Mayo",
-        "Junio",
-        "Julio",
-        "Agosto",
-        "Septiembre",
-        "Octubre",
-        "Noviembre",
-        "Diciembre",
-    ]
-    mes_seleccionado_nombre = st.selectbox(
-        "Mes:", meses_nombres, index=(hoy.month - 1)
-    )
-    mes_num = meses_nombres.index(mes_seleccionado_nombre) + 1
+st.markdown("### 🗓️ Calendario por Meses", unsafe_allow_html=True)
 
-# Mostrar calendario visual del mes seleccionado en texto claro
-st.markdown(f"#### Vista Calendario: {mes_seleccionado_nombre} {anio_seleccionado}")
+col_izq, col_centro, col_der = st.columns([1, 2, 1])
+
+with col_izq:
+    if st.button("⬅️ Anterior"):
+        if st.session_state.mes_activo == 1:
+            st.session_state.mes_activo = 12
+            st.session_state.anio_activo -= 1
+        else:
+            st.session_state.mes_activo -= 1
+        st.rerun()
+
+with col_centro:
+    nombre_mes_actual = meses_nombres[st.session_state.mes_activo - 1]
+    st.markdown(
+        f"<h3 style='text-align: center; color: #7950F2; margin: 0;'>{nombre_mes_actual} {st.session_state.anio_activo}</h3>",
+        unsafe_allow_html=True,
+    )
+
+with col_der:
+    if st.button("Siguiente ➡️"):
+        if st.session_state.mes_activo == 12:
+            st.session_state.mes_activo = 1
+            st.session_state.anio_activo += 1
+        else:
+            st.session_state.mes_activo += 1
+        st.rerun()
+
+# Mostrar cuadrícula de texto del mes actual
 cal_texto = calendar.TextCalendar(calendar.SUNDAY).formatmonth(
-    anio_seleccionado, mes_num
+    st.session_state.anio_activo, st.session_state.mes_activo
 )
 st.code(cal_texto, language="")
 
 st.divider()
 
-# --- FILTRAR CITAS DEL MES SELECCIONADO ---
-st.markdown(f"### 📌 Citas Programadas en {mes_seleccionado_nombre}")
+# --- TARJETAS DE CITAS DEL MES SELECCIONADO ---
+st.markdown(
+    f"### 📌 Citas Programadas en {nombre_mes_actual} {st.session_state.anio_activo}",
+    unsafe_allow_html=True,
+)
 
 citas_del_mes = [
     c
     for c in st.session_state.citas
-    if c["fecha"].year == anio_seleccionado and c["fecha"].month == mes_num
+    if c["fecha"].year == st.session_state.anio_activo
+    and c["fecha"].month == st.session_state.mes_activo
 ]
 
 if not citas_del_mes:
     st.info(
-        f"No hay citas registradas para {mes_seleccionado_nombre} {anio_seleccionado}."
+        f"No hay citas registradas para {nombre_mes_actual} {st.session_state.anio_activo}."
     )
 else:
     citas_ordenadas = sorted(citas_del_mes, key=lambda x: x["fecha"])
@@ -202,7 +240,7 @@ else:
 
 st.divider()
 
-# --- PANEL DE GESTIÓN Y VERIFICADOR DE HORAS DISPONIBLES ---
+# --- PANEL DE GESTIÓN Y VERIFICADOR DE HORAS ---
 st.markdown("### ➕ Agendar Nueva Cita y Verificar Horas Libres")
 
 with st.expander("🛠️ Abrir asistente para agendar cita"):
@@ -215,7 +253,6 @@ with st.expander("🛠️ Abrir asistente para agendar cita"):
             "**Verificador de Horarios:** Elige una hora para la cita. *(Recuerda evitar el bloque de almuerzo de 12:00 PM a 4:00 PM)*"
         )
 
-        # Franjas horarias cómodas disponibles para el día
         horarios_disponibles = [
             "08:00 AM",
             "09:00 AM",
@@ -248,5 +285,8 @@ with st.expander("🛠️ Abrir asistente para agendar cita"):
                         "hora": nueva_hora,
                     }
                 )
+                # Actualizar automáticamente el mes activo al mes de la nueva cita para que la vea de inmediato
+                st.session_state.mes_activo = nueva_fecha.month
+                st.session_state.anio_activo = nueva_fecha.year
                 st.success("¡Cita agendada con éxito y verificada!")
                 st.rerun()
