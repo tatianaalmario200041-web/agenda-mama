@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Agenda de Mamá", page_icon="📖", layout="centered"
 )
 
-# Estilos CSS con celdas de tamaño estricto fijo y texto adaptado (sin deformaciones)
+# Estilos CSS con celdas de tamaño estricto fijo y diseño impecable móvil
 st.markdown(
     """
     <style>
@@ -25,9 +25,9 @@ st.markdown(
         background-color: #FEF9E7;
         border-left: 8px solid #F1C40F;
         color: #7D6608;
-        padding: 15px;
-        border-radius: 10px;
-        font-size: 1.2rem;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 1.25rem;
         font-weight: bold;
         margin-bottom: 12px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -36,22 +36,21 @@ st.markdown(
         background-color: #EAFAF1;
         border-left: 8px solid #2ECC71;
         color: #196F3D;
-        padding: 15px;
-        border-radius: 10px;
-        font-size: 1.2rem;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 1.25rem;
         font-weight: bold;
         margin-bottom: 12px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
+    /* Celdas con tamaño estricto fijo impecable (sin texto roto) */
     .celda-vacia {
         background-color: #FFFFFF;
         border: 1px solid #E5E7E9;
         border-radius: 8px;
         text-align: center;
-        padding: 4px;
-        height: 65px;
-        max-height: 65px;
-        overflow: hidden;
+        padding: 10px;
+        height: 55px;
         margin-bottom: 4px;
     }
     .celda-con-cita {
@@ -59,29 +58,27 @@ st.markdown(
         border: 2px solid #8E44AD;
         border-radius: 8px;
         text-align: center;
-        padding: 4px;
-        height: 65px;
-        max-height: 65px;
-        overflow: hidden;
+        padding: 8px;
+        height: 55px;
         margin-bottom: 4px;
     }
     .badge-almuerzo {
         background-color: #FADBD8;
         color: #78281F;
-        padding: 3px 8px;
+        padding: 4px 10px;
         border-radius: 6px;
-        font-size: 0.85rem;
+        font-size: 0.95rem;
         font-weight: bold;
         display: inline-block;
-        margin-top: 4px;
+        margin-top: 6px;
     }
     p, label, span, div, input {
-        font-size: 1.1rem !important;
+        font-size: 1.15rem !important;
     }
     .stButton>button {
-        font-size: 1.1rem !important;
-        padding: 8px 12px !important;
-        border-radius: 8px !important;
+        font-size: 1.15rem !important;
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
         font-weight: bold !important;
     }
     </style>
@@ -185,11 +182,11 @@ for idx, (m_num, m_nombre) in enumerate(meses_disponibles):
 
 nombre_mes_actual = meses_nombres[st.session_state.mes_activo - 1]
 st.markdown(
-    f"<h3 style='text-align: center; color: #8E44AD; margin-top: 10px;'>📖 {nombre_mes_actual}</h3>",
+    f"<h3 style='text-align: center; color: #8E44AD; margin-top: 10px;'>📖 Calendario de {nombre_mes_actual}</h3>",
     unsafe_allow_html=True,
 )
 
-# --- CUADRÍCULA FIJA DEL CALENDARIO ---
+# --- CUADRÍCULA FIJA DEL CALENDARIO (ESTRICTA Y LIMPIA CON ESTRELLAS ⭐) ---
 cal = calendar.Calendar(firstweekday=6)  # Domingo primero
 dias_mes = cal.monthdayscalendar(
     st.session_state.anio_activo, st.session_state.mes_activo
@@ -225,17 +222,12 @@ for semana in dias_mes:
                     c for c in citas_del_mes if c["fecha"].day == dia
                 ]
                 if citas_en_dia:
-                    primer_titulo = citas_en_dia[0]["titulo"]
-                    if len(primer_titulo) > 10:
-                        primer_titulo = primer_titulo[:9] + "..."
-                    hora_corta = citas_en_dia[0]["hora"].split(" ")[0]
-
+                    # Celda con número y estrellita fija sin romper texto
                     st.markdown(
                         f"""
                         <div class='celda-con-cita'>
-                            <span style='color: #8E44AD; font-weight: bold; font-size: 0.85rem;'>{dia}</span><br>
-                            <span style='color: #4A235A; font-size: 0.7rem; font-weight: bold;'>{primer_titulo}</span><br>
-                            <span style='color: #7D3C98; font-size: 0.65rem;'>{hora_corta}</span>
+                            <span style='color: #8E44AD; font-weight: bold; font-size: 1rem;'>{dia}</span><br>
+                            <span style='font-size: 0.85rem;'>⭐</span>
                         </div>
                         """,
                         unsafe_allow_html=True,
@@ -244,7 +236,7 @@ for semana in dias_mes:
                     st.markdown(
                         f"""
                         <div class='celda-vacia'>
-                            <span style='color: #5D6D7E; font-size: 0.9rem;'>{dia}</span>
+                            <span style='color: #5D6D7E; font-size: 1rem;'>{dia}</span>
                         </div>
                         """,
                         unsafe_allow_html=True,
@@ -252,14 +244,16 @@ for semana in dias_mes:
 
 st.divider()
 
-# --- LISTADO DETALLADO Y ALERTA DE ALMUERZO ---
+# --- TARJETAS DETALLADAS Y CLARAS DE LAS CITAS DEL MES ---
 st.markdown(
-    f"<h3 style='color: #2C3E50;'>📌 Tus Citas en {nombre_mes_actual}</h3>",
+    f"<h3 style='color: #2C3E50;'>📌 Detalle de Citas en {nombre_mes_actual}</h3>",
     unsafe_allow_html=True,
 )
 
 if not citas_del_mes:
-    st.info(f"No hay citas anotadas para {nombre_mes_actual}.")
+    st.info(
+        f"No hay citas anotadas para {nombre_mes_actual}. ¡Todo libre por ahora!"
+    )
 else:
     citas_ordenadas = sorted(citas_del_mes, key=lambda x: (x["fecha"], x["hora"]))
     for cita in citas_ordenadas:
@@ -267,6 +261,7 @@ else:
         dia_espanol = dias_semana_es.get(dia_ingles, dia_ingles)
         fecha_str = f"{dia_espanol}, {cita['fecha'].day} de {nombre_mes_actual}"
 
+        # Verificar si la hora está en la franja de almuerzo (12:00 PM - 4:00 PM)
         es_hora_almuerzo = False
         hora_str = cita["hora"]
         if any(
@@ -280,12 +275,12 @@ else:
 
         st.markdown(
             f"""
-            <div style='background-color: #FFFFFF; border: 1px solid #E5E7E9; border-left: 8px solid #8E44AD; padding: 15px; border-radius: 10px; margin-bottom: 12px;'>
+            <div style='background-color: #FFFFFF; border: 1px solid #E5E7E9; border-left: 8px solid #8E44AD; padding: 16px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03);'>
                 <div style='font-size: 1rem; color: #7F8C8D; font-weight: bold;'>📅 {fecha_str}</div>
-                <div style='font-size: 1.3rem; font-weight: bold; color: #2C3E50; margin-top: 3px;'>
+                <div style='font-size: 1.4rem; font-weight: bold; color: #2C3E50; margin-top: 4px;'>
                     ✍️ {cita['titulo']}
                 </div>
-                <div style='color: #34495E; margin-top: 3px; font-size: 1.1rem;'>
+                <div style='color: #34495E; margin-top: 4px; font-size: 1.2rem;'>
                     ⏰ Hora: <b>{cita['hora']}</b>
                 </div>
                 {aviso_almuerzo_html}
@@ -301,7 +296,7 @@ st.markdown(
     "<h3 style='color: #2C3E50;'>➕ Anotar Nueva Cita</h3>", unsafe_allow_html=True
 )
 
-with st.expander("📝 Toca aquí para registrar un evento"):
+with st.expander("📝 Toca aquí para registrar un evento nuevo"):
     with st.form("form_cita"):
         nuevo_titulo = st.text_input("¿Qué cita o evento tienes?")
         nueva_fecha = st.date_input("Fecha del evento:", value=hoy)
@@ -319,5 +314,5 @@ with st.expander("📝 Toca aquí para registrar un evento"):
             )
             st.session_state.mes_activo = nueva_fecha.month
             st.session_state.anio_activo = nueva_fecha.year
-            st.success("¡Cita guardada con éxito!")
+            st.success("¡Cita guardada con éxito y marcada en el calendario!")
             st.rerun()
