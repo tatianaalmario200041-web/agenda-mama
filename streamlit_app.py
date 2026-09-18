@@ -1,12 +1,13 @@
+import calendar
 import datetime
 import streamlit as st
 
-# Configuración de la página orientada a accesibilidad visual
+# Configuración de la página
 st.set_page_config(
     page_title="Agenda de Mamá", page_icon="💖", layout="centered"
 )
 
-# Estilos CSS mejorados: calendario visual limpio y rutina en tono tenue
+# Estilos CSS accesibles y amigables
 st.markdown(
     """
     <style>
@@ -41,7 +42,6 @@ st.markdown(
         margin-bottom: 20px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    /* Estilo tenue y elegante para la rutina diaria (sin caja azul pesada) */
     .routine-subtle {
         background-color: #E9ECEF;
         border-left: 8px solid #ADB5BD;
@@ -50,9 +50,7 @@ st.markdown(
         border-radius: 12px;
         font-size: 1.4rem;
         margin-bottom: 25px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    /* Estilo tipo Calendario Tradicional para las citas */
     .calendar-card {
         background-color: white;
         border: 2px solid #E2E8F0;
@@ -60,8 +58,6 @@ st.markdown(
         padding: 20px;
         margin-bottom: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-        display: flex;
-        flex-direction: column;
     }
     .calendar-date-badge {
         background-color: #7950F2;
@@ -72,9 +68,8 @@ st.markdown(
         font-size: 1.2rem;
         display: inline-block;
         margin-bottom: 10px;
-        text-align: center;
     }
-    p, label, span, div {
+    p, label, span, div, select, input {
         font-size: 1.3rem !important;
     }
     .stButton>button {
@@ -88,7 +83,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Título principal gigante
+# Título principal
 st.markdown("<h1>📅 Agenda de Mamá</h1>", unsafe_allow_html=True)
 
 # Inicializar lista de citas en memoria de sesión
@@ -124,11 +119,11 @@ else:
         unsafe_allow_html=True,
     )
 
-# --- RUTINA FIJA DIARIA EN TONO TENUE ---
+# --- RUTINA FIJA DIARIA ---
 st.markdown(
     """
     <div class="routine-subtle">
-        <b>🕒 Rutina Diaria:</b> Almuerzo / Lonchera de <b>12:00 PM – 4:00 PM</b>
+        <b>🕒 Rutina Diaria Fija:</b> Almuerzo / Lonchera de <b>12:00 PM – 4:00 PM</b> *(Horario reservado)*
     </div>
     """,
     unsafe_allow_html=True,
@@ -136,17 +131,58 @@ st.markdown(
 
 st.divider()
 
-# --- VISTA DE CALENDARIO VISUAL ---
-st.markdown(
-    "### 🗓️ Calendario de Eventos y Citas", unsafe_allow_html=True
+# --- SELECTOR DE MES PARA EL CALENDARIO ---
+st.markdown("### 🗓️ Selector de Mes y Calendario", unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+with col1:
+    anio_seleccionado = st.selectbox(
+        "Año:", [hoy.year, hoy.year + 1], index=0
+    )
+with col2:
+    meses_nombres = [
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre",
+    ]
+    mes_seleccionado_nombre = st.selectbox(
+        "Mes:", meses_nombres, index=(hoy.month - 1)
+    )
+    mes_num = meses_nombres.index(mes_seleccionado_nombre) + 1
+
+# Mostrar calendario visual del mes seleccionado en texto claro
+st.markdown(f"#### Vista Calendario: {mes_seleccionado_nombre} {anio_seleccionado}")
+cal_texto = calendar.TextCalendar(calendar.SUNDAY).formatmonth(
+    anio_seleccionado, mes_num
 )
+st.code(cal_texto, language="")
 
-if not st.session_state.citas:
-    st.info("No hay citas registradas en el calendario.")
+st.divider()
+
+# --- FILTRAR CITAS DEL MES SELECCIONADO ---
+st.markdown(f"### 📌 Citas Programadas en {mes_seleccionado_nombre}")
+
+citas_del_mes = [
+    c
+    for c in st.session_state.citas
+    if c["fecha"].year == anio_seleccionado and c["fecha"].month == mes_num
+]
+
+if not citas_del_mes:
+    st.info(
+        f"No hay citas registradas para {mes_seleccionado_nombre} {anio_seleccionado}."
+    )
 else:
-    # Ordenar citas por fecha
-    citas_ordenadas = sorted(st.session_state.citas, key=lambda x: x["fecha"])
-
+    citas_ordenadas = sorted(citas_del_mes, key=lambda x: x["fecha"])
     for cita in citas_ordenadas:
         fecha_str = cita["fecha"].strftime("%A, %d de %B de %Y")
         st.markdown(
@@ -164,21 +200,53 @@ else:
             unsafe_allow_html=True,
         )
 
-# --- PANEL DE GESTIÓN ---
-with st.expander("➕ Agregar una nueva cita al calendario"):
+st.divider()
+
+# --- PANEL DE GESTIÓN Y VERIFICADOR DE HORAS DISPONIBLES ---
+st.markdown("### ➕ Agendar Nueva Cita y Verificar Horas Libres")
+
+with st.expander("🛠️ Abrir asistente para agendar cita"):
     with st.form("form_cita"):
         nuevo_titulo = st.text_input("Nombre de la cita o evento:")
         nueva_fecha = st.date_input("Fecha de la cita:", value=hoy)
-        nueva_hora = st.text_input("Hora (ej: 3:00 PM):", value="2:00 PM")
-        guardar = st.form_submit_button("Guardar en el Calendario")
+
+        st.markdown("---")
+        st.markdown(
+            "**Verificador de Horarios:** Elige una hora para la cita. *(Recuerda evitar el bloque de almuerzo de 12:00 PM a 4:00 PM)*"
+        )
+
+        # Franjas horarias cómodas disponibles para el día
+        horarios_disponibles = [
+            "08:00 AM",
+            "09:00 AM",
+            "10:00 AM",
+            "11:00 AM",
+            "12:00 PM (⚠️ Almuerzo)",
+            "01:00 PM (⚠️ Almuerzo)",
+            "02:00 PM (⚠️ Almuerzo)",
+            "03:00 PM (⚠️ Almuerzo)",
+            "04:00 PM",
+            "05:00 PM",
+            "06:00 PM",
+        ]
+        nueva_hora = st.selectbox(
+            "Selecciona la hora sugerida:", horarios_disponibles
+        )
+
+        guardar = st.form_submit_button("Guardar Cita en la Agenda")
 
         if guardar and nuevo_titulo:
-            st.session_state.citas.append(
-                {
-                    "titulo": nuevo_titulo,
-                    "fecha": nueva_fecha,
-                    "hora": nueva_hora,
-                }
-            )
-            st.success("¡Cita agregada al calendario con éxito!")
-            st.rerun()
+            if "Almuerzo" in nueva_hora:
+                st.error(
+                    "❌ ¡Esa hora está reservada para el Almuerzo/Lonchera (12:00 PM - 4:00 PM)! Elige otra."
+                )
+            else:
+                st.session_state.citas.append(
+                    {
+                        "titulo": nuevo_titulo,
+                        "fecha": nueva_fecha,
+                        "hora": nueva_hora,
+                    }
+                )
+                st.success("¡Cita agendada con éxito y verificada!")
+                st.rerun()
