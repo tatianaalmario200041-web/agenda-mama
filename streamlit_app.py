@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Agenda de Mamá", page_icon="📖", layout="centered"
 )
 
-# Estilos CSS avanzados para vista móvil compacta y nombres de citas dentro del cuadro
+# Estilos CSS con celdas de tamaño estricto fijo y texto adaptado (sin deformaciones)
 st.markdown(
     """
     <style>
@@ -21,18 +21,8 @@ st.markdown(
         font-weight: 800 !important;
         font-family: 'Georgia', serif;
     }
-    .alerta-hoy {
-        background-color: #FDEDEC;
-        border-left: 8px solid #E74C3C;
-        color: #922B21;
-        padding: 15px;
-        border-radius: 10px;
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .alerta-mañana {
+    /* Alertas para hoy, mañana y pasado mañana */
+    .alerta-proxima {
         background-color: #FEF9E7;
         border-left: 8px solid #F1C40F;
         color: #7D6608;
@@ -40,7 +30,7 @@ st.markdown(
         border-radius: 10px;
         font-size: 1.2rem;
         font-weight: bold;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     .tranquilo {
@@ -51,17 +41,19 @@ st.markdown(
         border-radius: 10px;
         font-size: 1.2rem;
         font-weight: bold;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    /* Estilo para las celdas del calendario móvil */
+    /* Celdas del calendario con TAMAÑO FIJO estricto */
     .celda-vacia {
         background-color: #FFFFFF;
         border: 1px solid #E5E7E9;
         border-radius: 8px;
         text-align: center;
-        padding: 6px;
-        min-height: 55px;
+        padding: 4px;
+        height: 65px;
+        max-height: 65px;
+        overflow: hidden;
         margin-bottom: 4px;
     }
     .celda-con-cita {
@@ -69,8 +61,10 @@ st.markdown(
         border: 2px solid #8E44AD;
         border-radius: 8px;
         text-align: center;
-        padding: 6px;
-        min-height: 65px;
+        padding: 4px;
+        height: 65px;
+        max-height: 65px;
+        overflow: hidden;
         margin-bottom: 4px;
     }
     .badge-almuerzo {
@@ -97,7 +91,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Título principal adaptado a móvil
+# Título principal
 st.markdown("<h1>📖 Agenda de Mamá</h1>", unsafe_allow_html=True)
 
 # Inicializar lista de citas en memoria
@@ -142,42 +136,37 @@ if "mes_activo" not in st.session_state:
 if "anio_activo" not in st.session_state:
     st.session_state.anio_activo = hoy.year
 
-# --- BLOQUE DE ALERTAS INTELIGENTES SUPERIORES ---
-manana = hoy + datetime.timedelta(days=1)
-cita_hoy = next((c for c in st.session_state.citas if c["fecha"] == hoy), None)
-cita_manana = next(
-    (c for c in st.session_state.citas if c["fecha"] == manana), None
-)
+# --- BLOQUE DE ALERTAS INTELIGENTES (HOY Y LOS DOS DÍAS SIGUIENTES) ---
+dias_a_revisar = [
+    (hoy, "🚨 HOY"),
+    (hoy + datetime.timedelta(days=1), "⚠️ MAÑANA"),
+    (hoy + datetime.timedelta(days=2), "📅 EN DOS DÍAS"),
+]
 
-if cita_hoy:
+citas_encontradas_alerta = False
+for fecha_obj, etiqueta in dias_a_revisar:
+    citas_dia = [c for c in st.session_state.citas if c["fecha"] == fecha_obj]
+    for c in citas_dia:
+        citas_encontradas_alerta = True
+        st.markdown(
+            f"""
+            <div class="alerta-proxima">
+                {etiquette_str := etiqueta}: <b>{c['titulo']}</b><br>
+                ⏰ Fecha: {fecha_obj.strftime('%d/%m/%Y')} a las <b>{c['hora']}</b>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+if not citas_encontradas_alerta:
     st.markdown(
-        f"""
-        <div class="alerta-hoy">
-            🚨 ¡Atención! Cita para HOY:<br>
-            📌 <b>{cita_hoy['titulo']}</b> a las <b>{cita_hoy['hora']}</b>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-elif cita_manana:
-    st.markdown(
-        f"""
-        <div class="alerta-mañana">
-            ⚠️ Atención: Cita para mañana:<br>
-            📌 <b>{cita_manana['titulo']}</b> a las <b>{cita_manana['hora']}</b>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-else:
-    st.markdown(
-        '<div class="tranquilo">✨ ¡Todo tranquilo! Disfruta tu día. ✨</div>',
+        '<div class="tranquilo">✨ ¡Todo tranquilo para estos días! Disfruta con calma. ✨</div>',
         unsafe_allow_html=True,
     )
 
 st.divider()
 
-# --- SELECTOR DE MESES (SOLO MESES RESTANTES DEL AÑO) ---
+# --- SELECTOR DE MESES (SOLO RESTANTES DEL AÑO) ---
 meses_disponibles = []
 for m in range(hoy.month, 13):
     meses_disponibles.append((m, meses_nombres[m - 1]))
@@ -202,7 +191,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- CUADRÍCULA DEL CALENDARIO MÓVIL (CON CITas DENTRO DEL CUADRO) ---
+# --- CUADRÍCULA FIJA DEL CALENDARIO (TAMAÑO ESTRICTO Y LETRA ADAPTADA) ---
 cal = calendar.Calendar(firstweekday=6)  # Domingo primero
 dias_mes = cal.monthdayscalendar(
     st.session_state.anio_activo, st.session_state.mes_activo
@@ -238,18 +227,18 @@ for semana in dias_mes:
                     c for c in citas_del_mes if c["fecha"].day == dia
                 ]
                 if citas_en_dia:
-                    # Extraer los títulos o nombres de las citas para ponerlos dentro del cuadro
-                    titulos_citas = "<br>".join(
-                        [
-                            f"<span style='color: #8E44AD; font-size: 0.75rem; font-weight: bold;'>{c['titulo']} ({c['hora']})</span>"
-                            for c in citas_en_dia
-                        ]
-                    )
+                    # Acortar títulos muy largos para que quepan perfecto sin estirar el cuadro
+                    primer_titulo = citas_en_dia[0]["titulo"]
+                    if len(primer_titulo) > 10:
+                        primer_titulo = primer_titulo[:9] + "..."
+                    hora_corta = citas_en_dia[0]["hora"].split(" ")[0]
+
                     st.markdown(
                         f"""
                         <div class='celda-con-cita'>
-                            <span style='color: #8E44AD; font-weight: bold; font-size: 0.95rem;'>{dia}</span><br>
-                            {titulos_citas}
+                            <span style='color: #8E44AD; font-weight: bold; font-size: 0.85rem;'>{dia}</span><br>
+                            <span style='color: #4A235A; font-size: 0.7rem; font-weight: bold;'>{primer_titulo}</span><br>
+                            <span style='color: #7D3C98; font-size: 0.65rem;'>{hora_corta}</span>
                         </div>
                         """,
                         unsafe_allow_html=True,
@@ -258,7 +247,7 @@ for semana in dias_mes:
                     st.markdown(
                         f"""
                         <div class='celda-vacia'>
-                            <span style='color: #5D6D7E; font-size: 0.95rem;'>{dia}</span>
+                            <span style='color: #5D6D7E; font-size: 0.9rem;'>{dia}</span>
                         </div>
                         """,
                         unsafe_allow_html=True,
