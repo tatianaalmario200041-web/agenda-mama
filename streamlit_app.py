@@ -4,89 +4,104 @@ import streamlit as st
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Agenda de Mamá", page_icon="💖", layout="centered"
+    page_title="Agenda de Mamá", page_icon="📖", layout="centered"
 )
 
-# Estilos CSS accesibles y amigables
+# Estilos CSS estilo Cuaderno / Agenda Manual con ingeniería visual e intuitiva
 st.markdown(
     """
     <style>
     .main {
-        background-color: #F8F9FA;
+        background-color: #F4F6F9;
     }
     h1 {
-        color: #4A154B;
+        color: #2C3E50;
         text-align: center;
         font-size: 2.8rem !important;
         font-weight: 800 !important;
+        font-family: 'Georgia', serif;
     }
-    .status-card-urgente {
-        background-color: #FF6B6B;
-        color: white;
-        padding: 22px;
-        border-radius: 20px;
-        text-align: center;
-        font-size: 1.8rem;
-        font-weight: bold;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .status-card-tranquilo {
-        background-color: #51CF66;
-        color: white;
-        padding: 22px;
-        border-radius: 20px;
-        text-align: center;
-        font-size: 1.8rem;
-        font-weight: bold;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .routine-subtle {
-        background-color: #E9ECEF;
-        border-left: 8px solid #ADB5BD;
-        color: #495057;
-        padding: 18px 22px;
+    .alerta-hoy {
+        background-color: #FDEDEC;
+        border-left: 10px solid #E74C3C;
+        color: #922B21;
+        padding: 20px;
         border-radius: 12px;
-        font-size: 1.4rem;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .alerta-mañana {
+        background-color: #FEF9E7;
+        border-left: 10px solid #F1C40F;
+        color: #7D6608;
+        padding: 20px;
+        border-radius: 12px;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .tranquilo {
+        background-color: #EAFAF1;
+        border-left: 10px solid #2ECC71;
+        color: #196F3D;
+        padding: 20px;
+        border-radius: 12px;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .rutina-fija {
+        background-color: #EBF5FB;
+        border-left: 8px solid #3498DB;
+        color: #1B4F72;
+        padding: 15px 20px;
+        border-radius: 12px;
+        font-size: 1.3rem;
         margin-bottom: 25px;
     }
-    .calendar-card {
-        background-color: white;
-        border: 2px solid #E2E8F0;
-        border-radius: 16px;
+    .tarjeta-cita {
+        background-color: #FFFFFF;
+        border: 1px solid #D5DBDB;
+        border-left: 8px solid #8E44AD;
         padding: 20px;
+        border-radius: 12px;
         margin-bottom: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.04);
     }
-    .calendar-date-badge {
-        background-color: #7950F2;
+    .badge-fecha {
+        background-color: #8E44AD;
         color: white;
-        padding: 8px 15px;
-        border-radius: 10px;
+        padding: 6px 12px;
+        border-radius: 8px;
         font-weight: bold;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         display: inline-block;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
     p, label, span, div, input {
-        font-size: 1.3rem !important;
+        font-size: 1.25rem !important;
     }
     .stButton>button {
-        font-size: 1.4rem !important;
+        font-size: 1.3rem !important;
         padding: 10px 20px !important;
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         font-weight: bold !important;
+        background-color: #8E44AD !important;
+        color: white !important;
     }
     </style>
 """,
     unsafe_allow_html=True,
 )
 
-# Título principal
-st.markdown("<h1>📅 Agenda de Mamá</h1>", unsafe_allow_html=True)
+# Título principal de la agenda estilo cuaderno
+st.markdown("<h1>📖 Agenda Personal de Mamá</h1>", unsafe_allow_html=True)
 
-# Inicializar lista de citas en memoria de sesión
+# Inicializar lista de citas en memoria
 if "citas" not in st.session_state:
     st.session_state.citas = [
         {
@@ -96,60 +111,7 @@ if "citas" not in st.session_state:
         }
     ]
 
-# --- CONTROL DE MES ACTIVO EN SESIÓN ---
-hoy = datetime.date.today()
-if "mes_activo" not in st.session_state:
-    st.session_state.mes_activo = hoy.month
-if "anio_activo" not in st.session_state:
-    st.session_state.anio_activo = hoy.year
-
-# --- BLOQUE DE ESTADO DINÁMICO DETALLADO ---
-manana = hoy + datetime.timedelta(days=1)
-
-cita_hoy = next((c for c in st.session_state.citas if c["fecha"] == hoy), None)
-cita_manana = next(
-    (c for c in st.session_state.citas if c["fecha"] == manana), None
-)
-
-if cita_hoy:
-    st.markdown(
-        f"""
-        <div class="status-card-urgente">
-            🚨 ¡ATENCIÓN HOY! 🚨<br>
-            📌 <b>{cita_hoy['titulo']}</b> a las <b>{cita_hoy['hora']}</b>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-elif cita_manana:
-    st.markdown(
-        f"""
-        <div class="status-card-urgente">
-            ⚠️ MAÑANA TIENES CITA ⚠️<br>
-            📌 <b>{cita_manana['titulo']}</b> a las <b>{cita_manana['hora']}</b>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-else:
-    st.markdown(
-        '<div class="status-card-tranquilo">✨ ¡Todo tranquilo por hoy! Disfruta tu día ✨</div>',
-        unsafe_allow_html=True,
-    )
-
-# --- RUTINA FIJA DIARIA ---
-st.markdown(
-    """
-    <div class="routine-subtle">
-        <b>🕒 Rutina Diaria Fija:</b> Almuerzo / Lonchera de <b>12:00 PM – 4:00 PM</b> *(Horario reservado)*
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.divider()
-
-# --- NAVEGACIÓN DE MESES CON BOTONES (SIN DESPLETABLES) ---
+# Configuración de fechas en español
 meses_nombres = [
     "Enero",
     "Febrero",
@@ -165,12 +127,78 @@ meses_nombres = [
     "Diciembre",
 ]
 
-st.markdown("### 🗓️ Calendario por Meses", unsafe_allow_html=True)
+dias_semana_es = {
+    "Monday": "Lunes",
+    "Tuesday": "Martes",
+    "Wednesday": "Miércoles",
+    "Thursday": "Jueves",
+    "Friday": "Viernes",
+    "Saturday": "Sábado",
+    "Sunday": "Domingo",
+}
+
+hoy = datetime.date.today()
+if "mes_activo" not in st.session_state:
+    st.session_state.mes_activo = hoy.month
+if "anio_activo" not in st.session_state:
+    st.session_state.anio_activo = hoy.year
+
+# --- BLOQUE DE ALERTAS INTELIGENTES ---
+manana = hoy + datetime.timedelta(days=1)
+
+cita_hoy = next((c for c in st.session_state.citas if c["fecha"] == hoy), None)
+cita_manana = next(
+    (c for c in st.session_state.citas if c["fecha"] == manana), None
+)
+
+if cita_hoy:
+    st.markdown(
+        f"""
+        <div class="alerta-hoy">
+            🚨 ¡Atención! Tienes una cita programada para HOY:<br>
+            📌 <b>{cita_hoy['titulo']}</b> a las <b>{cita_hoy['hora']}</b>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+elif cita_manana:
+    st.markdown(
+        f"""
+        <div class="alerta-mañana">
+            ⚠️ Atención: Mañana tienes una cita importante:<br>
+            📌 <b>{cita_manana['titulo']}</b> a las <b>{cita_manana['hora']}</b>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+else:
+    st.markdown(
+        '<div class="tranquilo">✨ ¡Todo tranquilo por hoy! Disfruta de tu día con calma. ✨</div>',
+        unsafe_allow_html=True,
+    )
+
+# --- RUTINA FIJA DIARIA ---
+st.markdown(
+    """
+    <div class="routine-fija">
+        <b>🕒 Rutina Diaria Fija:</b> Almuerzo / Lonchera reservada de <b>12:00 PM – 4:00 PM</b> *(Horario de descanso)*
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.divider()
+
+# --- NAVEGACIÓN ARMÓNICA DE MESES ---
+st.markdown(
+    "<h3 style='text-align: center; color: #2C3E50;'>📅 Calendario Mensual</h3>",
+    unsafe_allow_html=True,
+)
 
 col_izq, col_centro, col_der = st.columns([1, 2, 1])
 
 with col_izq:
-    if st.button("⬅️ Anterior"):
+    if st.button("⬅️ Mes Anterior"):
         if st.session_state.mes_activo == 1:
             st.session_state.mes_activo = 12
             st.session_state.anio_activo -= 1
@@ -181,12 +209,12 @@ with col_izq:
 with col_centro:
     nombre_mes_actual = meses_nombres[st.session_state.mes_activo - 1]
     st.markdown(
-        f"<h3 style='text-align: center; color: #7950F2; margin: 0;'>{nombre_mes_actual} {st.session_state.anio_activo}</h3>",
+        f"<h3 style='text-align: center; color: #8E44AD; margin: 0;'>{nombre_mes_actual} de {st.session_state.anio_activo}</h3>",
         unsafe_allow_html=True,
     )
 
 with col_der:
-    if st.button("Siguiente ➡️"):
+    if st.button("Mes Siguiente ➡️"):
         if st.session_state.mes_activo == 12:
             st.session_state.mes_activo = 1
             st.session_state.anio_activo += 1
@@ -194,7 +222,7 @@ with col_der:
             st.session_state.mes_activo += 1
         st.rerun()
 
-# Mostrar cuadrícula de texto del mes actual
+# Vista clásica de calendario en texto limpio
 cal_texto = calendar.TextCalendar(calendar.SUNDAY).formatmonth(
     st.session_state.anio_activo, st.session_state.mes_activo
 )
@@ -202,9 +230,9 @@ st.code(cal_texto, language="")
 
 st.divider()
 
-# --- TARJETAS DE CITAS DEL MES SELECCIONADO ---
+# --- LISTADO DE APUNTES / CITAS DEL MES SELECCIONADO ---
 st.markdown(
-    f"### 📌 Citas Programadas en {nombre_mes_actual} {st.session_state.anio_activo}",
+    f"<h3 style='color: #2C3E50;'>📌 Apuntes y Citas de {nombre_mes_actual}</h3>",
     unsafe_allow_html=True,
 )
 
@@ -217,21 +245,24 @@ citas_del_mes = [
 
 if not citas_del_mes:
     st.info(
-        f"No hay citas registradas para {nombre_mes_actual} {st.session_state.anio_activo}."
+        f"No hay citas ni eventos anotados para {nombre_mes_actual} de {st.session_state.anio_activo}."
     )
 else:
     citas_ordenadas = sorted(citas_del_mes, key=lambda x: x["fecha"])
     for cita in citas_ordenadas:
-        fecha_str = cita["fecha"].strftime("%A, %d de %B de %Y")
+        dia_ingles = cita["fecha"].strftime("%A")
+        dia_espanol = dias_semana_es.get(dia_ingles, dia_ingles)
+        fecha_str = f"{dia_espanol}, {cita['fecha'].day} de {nombre_mes_actual} de {cita['fecha'].year}"
+
         st.markdown(
             f"""
-            <div class="calendar-card">
-                <div><span class="calendar-date-badge">📅 {fecha_str}</span></div>
-                <div style="font-size: 1.6rem; font-weight: bold; color: #212529; margin-top: 5px;">
-                    📌 {cita['titulo']}
+            <div class="tarjeta-cita">
+                <div><span class="badge-fecha">📅 {fecha_str}</span></div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #2C3E50; margin-top: 5px;">
+                    ✍️ {cita['titulo']}
                 </div>
-                <div style="color: #6C757D; margin-top: 5px;">
-                    ⏰ Hora programada: <b>{cita['hora']}</b>
+                <div style="color: #7F8C8D; margin-top: 5px; font-size: 1.2rem;">
+                    ⏰ Hora fijada: <b>{cita['hora']}</b>
                 </div>
             </div>
             """,
@@ -240,17 +271,20 @@ else:
 
 st.divider()
 
-# --- PANEL DE GESTIÓN Y VERIFICADOR DE HORAS ---
-st.markdown("### ➕ Agendar Nueva Cita y Verificar Horas Libres")
+# --- ASISTENTE PARA AGENDAR NUEVA CITA ---
+st.markdown(
+    "<h3 style='color: #2C3E50;'>➕ Anotar Nueva Cita en la Libreta</h3>",
+    unsafe_allow_html=True,
+)
 
-with st.expander("🛠️ Abrir asistente para agendar cita"):
+with st.expander("📝 Abrir formulario para registrar un evento"):
     with st.form("form_cita"):
-        nuevo_titulo = st.text_input("Nombre de la cita o evento:")
-        nueva_fecha = st.date_input("Fecha de la cita:", value=hoy)
+        nuevo_titulo = st.text_input("¿Qué evento o cita se va a programar?")
+        nueva_fecha = st.date_input("Fecha exacta del evento:", value=hoy)
 
         st.markdown("---")
         st.markdown(
-            "**Verificador de Horarios:** Elige una hora para la cita. *(Recuerda evitar el bloque de almuerzo de 12:00 PM a 4:00 PM)*"
+            "**Verificador de Horarios Libres:** Selecciona una hora adecuada. *(Evita el bloque de almuerzo/lonchera de 12:00 PM a 4:00 PM)*"
         )
 
         horarios_disponibles = [
@@ -258,24 +292,24 @@ with st.expander("🛠️ Abrir asistente para agendar cita"):
             "09:00 AM",
             "10:00 AM",
             "11:00 AM",
-            "12:00 PM (⚠️ Almuerzo)",
-            "01:00 PM (⚠️ Almuerzo)",
-            "02:00 PM (⚠️ Almuerzo)",
-            "03:00 PM (⚠️ Almuerzo)",
+            "12:00 PM (⚠️ Almuerzo/Lonchera)",
+            "01:00 PM (⚠️ Almuerzo/Lonchera)",
+            "02:00 PM (⚠️ Almuerzo/Lonchera)",
+            "03:00 PM (⚠️ Almuerzo/Lonchera)",
             "04:00 PM",
             "05:00 PM",
             "06:00 PM",
         ]
         nueva_hora = st.selectbox(
-            "Selecciona la hora sugerida:", horarios_disponibles
+            "Selecciona la hora disponible:", horarios_disponibles
         )
 
-        guardar = st.form_submit_button("Guardar Cita en la Agenda")
+        guardar = st.form_submit_button("Guardar Apunte en la Agenda")
 
         if guardar and nuevo_titulo:
             if "Almuerzo" in nueva_hora:
                 st.error(
-                    "❌ ¡Esa hora está reservada para el Almuerzo/Lonchera (12:00 PM - 4:00 PM)! Elige otra."
+                    "❌ ¡Esa hora está ocupada por la rutina de almuerzo/lonchera (12:00 PM - 4:00 PM)! Por favor selecciona otra hora."
                 )
             else:
                 st.session_state.citas.append(
@@ -285,8 +319,8 @@ with st.expander("🛠️ Abrir asistente para agendar cita"):
                         "hora": nueva_hora,
                     }
                 )
-                # Actualizar automáticamente el mes activo al mes de la nueva cita para que la vea de inmediato
+                # Salto automático al mes de la cita agregada
                 st.session_state.mes_activo = nueva_fecha.month
                 st.session_state.anio_activo = nueva_fecha.year
-                st.success("¡Cita agendada con éxito y verificada!")
+                st.success("¡Cita anotada con éxito en la libreta!")
                 st.rerun()
