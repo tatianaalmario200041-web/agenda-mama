@@ -2,12 +2,12 @@ import calendar
 import datetime
 import streamlit as st
 
-# Configuración de página optimizada para celular
+# Configuración de página optimizada para celular e iPad
 st.set_page_config(
     page_title="Agenda de Mamá", page_icon="📖", layout="centered"
 )
 
-# Estilos CSS con celdas de tamaño estricto fijo y diseño impecable móvil
+# Estilos CSS modernos, limpios y 100% adaptados a móviles
 st.markdown(
     """
     <style>
@@ -43,24 +43,14 @@ st.markdown(
         margin-bottom: 12px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    /* Celdas con tamaño estricto fijo impecable (sin texto roto) */
-    .celda-vacia {
+    .tarjeta-dia-movil {
         background-color: #FFFFFF;
         border: 1px solid #E5E7E9;
-        border-radius: 8px;
-        text-align: center;
-        padding: 10px;
-        height: 55px;
-        margin-bottom: 4px;
-    }
-    .celda-con-cita {
-        background-color: #F3E5F5;
-        border: 2px solid #8E44AD;
-        border-radius: 8px;
-        text-align: center;
-        padding: 8px;
-        height: 55px;
-        margin-bottom: 4px;
+        border-left: 8px solid #8E44AD;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     }
     .badge-almuerzo {
         background-color: #FADBD8;
@@ -89,14 +79,177 @@ st.markdown(
 # Título principal
 st.markdown("<h1>📖 Agenda de Mamá</h1>", unsafe_allow_html=True)
 
-# Inicializar lista de citas en memoria
+# Inicializar lista con TODAS las citas reales del calendario físico de Septiembre, Octubre y Noviembre 2026
 if "citas" not in st.session_state:
     st.session_state.citas = [
+        # --- SEPTIEMBRE 2026 ---
         {
-            "titulo": "Control Médico General",
-            "fecha": (datetime.date.today() + datetime.timedelta(days=1)),
+            "titulo": "Fatima RBC",
+            "fecha": datetime.date(2026, 9, 2),
+            "hora": "08:00 AM",
+        },
+        {
+            "titulo": "San Benito - Fono",
+            "fecha": datetime.date(2026, 9, 2),
+            "hora": "11:00 AM",
+        },
+        {
+            "titulo": "Derecho de petición (Tatiana y Yuly)",
+            "fecha": datetime.date(2026, 9, 2),
+            "hora": "09:00 AM",
+        },
+        {
+            "titulo": "Candelaria TO",
+            "fecha": datetime.date(2026, 9, 4),
+            "hora": "07:30 AM",
+        },
+        {
+            "titulo": "San Benito Psico / Fono",
+            "fecha": datetime.date(2026, 9, 7),
+            "hora": "09:00 AM",
+        },
+        {
+            "titulo": "Candelaria TO",
+            "fecha": datetime.date(2026, 9, 8),
+            "hora": "10:30 AM",
+        },
+        {
+            "titulo": "Fatima RBC",
+            "fecha": datetime.date(2026, 9, 9),
+            "hora": "08:00 AM",
+        },
+        {
+            "titulo": "Norte - Chapinero (Teletón)",
+            "fecha": datetime.date(2026, 9, 10),
+            "hora": "09:00 AM",
+        },
+        {
+            "titulo": "Candelaria Física",
+            "fecha": datetime.date(2026, 9, 12),
+            "hora": "09:00 AM",
+        },
+        {
+            "titulo": "San Benito Fono",
+            "fecha": datetime.date(2026, 9, 14),
+            "hora": "11:00 AM",
+        },
+        {
+            "titulo": "Candelaria TO",
+            "fecha": datetime.date(2026, 9, 15),
+            "hora": "10:30 AM",
+        },
+        {
+            "titulo": "San José Terapia de Choque",
+            "fecha": datetime.date(2026, 9, 15),
+            "hora": "02:00 PM",
+        },
+        {
+            "titulo": "Fatima RBC / San Benito Psico / Fono / Citología",
+            "fecha": datetime.date(2026, 9, 16),
+            "hora": "08:00 AM",
+        },
+        {
+            "titulo": "San José Terapia de Choque",
+            "fecha": datetime.date(2026, 9, 17),
+            "hora": "01:30 PM",
+        },
+        {
+            "titulo": "Cump. Jana Parra",
+            "fecha": datetime.date(2026, 9, 18),
             "hora": "10:00 AM",
-        }
+        },
+        {
+            "titulo": "Cine Tatiana",
+            "fecha": datetime.date(2026, 9, 19),
+            "hora": "03:00 PM",
+        },
+        {
+            "titulo": "San José Terapia de Choque",
+            "fecha": datetime.date(2026, 9, 22),
+            "hora": "01:30 PM",
+        },
+        {
+            "titulo": "Fatima RBC / San Benito / Derecho petición",
+            "fecha": datetime.date(2026, 9, 23),
+            "hora": "08:00 AM",
+        },
+        {
+            "titulo": "San José Terapia de Choque",
+            "fecha": datetime.date(2026, 9, 24),
+            "hora": "01:30 PM",
+        },
+        {
+            "titulo": "Candelaria Física",
+            "fecha": datetime.date(2026, 9, 25),
+            "hora": "02:00 PM",
+        },
+        {
+            "titulo": "San Benito Fono",
+            "fecha": datetime.date(2026, 9, 28),
+            "hora": "09:00 AM",
+        },
+        {
+            "titulo": "Fatima RBC / San Benito Fono",
+            "fecha": datetime.date(2026, 9, 30),
+            "hora": "08:00 AM",
+        },
+        # --- OCTUBRE 2026 ---
+        {
+            "titulo": "Fatima RBC / Psico / San Benito",
+            "fecha": datetime.date(2026, 10, 7),
+            "hora": "08:00 AM",
+        },
+        {
+            "titulo": "Tatiana - CC en Soacha / Odontología",
+            "fecha": datetime.date(2026, 10, 9),
+            "hora": "09:40 AM",
+        },
+        {
+            "titulo": "Fono San Benito",
+            "fecha": datetime.date(2026, 10, 19),
+            "hora": "08:30 AM",
+        },
+        {
+            "titulo": "Fatima RBC",
+            "fecha": datetime.date(2026, 10, 21),
+            "hora": "08:00 AM",
+        },
+        {
+            "titulo": "Cita de Psicograma / Retina",
+            "fecha": datetime.date(2026, 10, 22),
+            "hora": "10:00 AM",
+        },
+        {
+            "titulo": "Psicología",
+            "fecha": datetime.date(2026, 10, 23),
+            "hora": "10:00 AM",
+        },
+        {
+            "titulo": "Fono San Benito",
+            "fecha": datetime.date(2026, 10, 26),
+            "hora": "08:30 AM",
+        },
+        {
+            "titulo": "Fatima RBC",
+            "fecha": datetime.date(2026, 10, 28),
+            "hora": "08:00 AM",
+        },
+        # --- NOVIEMBRE 2026 ---
+        {
+            "titulo": "Fatima RBC",
+            "fecha": datetime.date(2026, 11, 4),
+            "hora": "08:00 AM",
+        },
+        {
+            "titulo": "Tunal - Ecografía",
+            "fecha": datetime.date(2026, 11, 5),
+            "hora": "12:00 PM",
+        },
+        {
+            "titulo": "Desparasitación Morita ($8000)",
+            "fecha": datetime.date(2026, 11, 21),
+            "hora": "10:00 AM",
+        },
     ]
 
 # Meses y días en español
@@ -182,25 +335,11 @@ for idx, (m_num, m_nombre) in enumerate(meses_disponibles):
 
 nombre_mes_actual = meses_nombres[st.session_state.mes_activo - 1]
 st.markdown(
-    f"<h3 style='text-align: center; color: #8E44AD; margin-top: 10px;'>📖 Calendario de {nombre_mes_actual}</h3>",
+    f"<h3 style='text-align: center; color: #8E44AD; margin-top: 10px;'>📖 Citas de {nombre_mes_actual}</h3>",
     unsafe_allow_html=True,
 )
 
-# --- CUADRÍCULA FIJA DEL CALENDARIO (ESTRICTA Y LIMPIA CON ESTRELLAS ⭐) ---
-cal = calendar.Calendar(firstweekday=6)  # Domingo primero
-dias_mes = cal.monthdayscalendar(
-    st.session_state.anio_activo, st.session_state.mes_activo
-)
-
-cols_dias = st.columns(7)
-nombres_dias_cortos = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"]
-for idx, d_nombre in enumerate(nombres_dias_cortos):
-    with cols_dias[idx]:
-        st.markdown(
-            f"<div style='text-align: center; font-weight: bold; color: #7F8C8D; font-size: 0.9rem;'>{d_nombre}</div>",
-            unsafe_allow_html=True,
-        )
-
+# Filtrar citas del mes seleccionado
 citas_del_mes = [
     c
     for c in st.session_state.citas
@@ -208,48 +347,7 @@ citas_del_mes = [
     and c["fecha"].month == st.session_state.mes_activo
 ]
 
-for semana in dias_mes:
-    cols_semana = st.columns(7)
-    for idx, dia in enumerate(semana):
-        with cols_semana[idx]:
-            if dia == 0:
-                st.markdown(
-                    "<div class='celda-vacia' style='color: #BDC3C7;'>-</div>",
-                    unsafe_allow_html=True,
-                )
-            else:
-                citas_en_dia = [
-                    c for c in citas_del_mes if c["fecha"].day == dia
-                ]
-                if citas_en_dia:
-                    # Celda con número y estrellita fija sin romper texto
-                    st.markdown(
-                        f"""
-                        <div class='celda-con-cita'>
-                            <span style='color: #8E44AD; font-weight: bold; font-size: 1rem;'>{dia}</span><br>
-                            <span style='font-size: 0.85rem;'>⭐</span>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
-                else:
-                    st.markdown(
-                        f"""
-                        <div class='celda-vacia'>
-                            <span style='color: #5D6D7E; font-size: 1rem;'>{dia}</span>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
-
-st.divider()
-
-# --- TARJETAS DETALLADAS Y CLARAS DE LAS CITAS DEL MES ---
-st.markdown(
-    f"<h3 style='color: #2C3E50;'>📌 Detalle de Citas en {nombre_mes_actual}</h3>",
-    unsafe_allow_html=True,
-)
-
+# --- VISTA MÓVIL OPTIMIZADA: TARJETAS DIARIAS CLARAS Y GIGANTES ---
 if not citas_del_mes:
     st.info(
         f"No hay citas anotadas para {nombre_mes_actual}. ¡Todo libre por ahora!"
@@ -275,8 +373,8 @@ else:
 
         st.markdown(
             f"""
-            <div style='background-color: #FFFFFF; border: 1px solid #E5E7E9; border-left: 8px solid #8E44AD; padding: 16px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03);'>
-                <div style='font-size: 1rem; color: #7F8C8D; font-weight: bold;'>📅 {fecha_str}</div>
+            <div class="tarjeta-dia-movil">
+                <div style='font-size: 1.1rem; color: #7F8C8D; font-weight: bold;'>📅 {fecha_str}</div>
                 <div style='font-size: 1.4rem; font-weight: bold; color: #2C3E50; margin-top: 4px;'>
                     ✍️ {cita['titulo']}
                 </div>
@@ -314,5 +412,5 @@ with st.expander("📝 Toca aquí para registrar un evento nuevo"):
             )
             st.session_state.mes_activo = nueva_fecha.month
             st.session_state.anio_activo = nueva_fecha.year
-            st.success("¡Cita guardada con éxito y marcada en el calendario!")
+            st.success("¡Cita guardada con éxito!")
             st.rerun()
