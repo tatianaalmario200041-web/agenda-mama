@@ -6,7 +6,7 @@ st.set_page_config(
     page_title="Agenda de Mamá", page_icon="💖", layout="centered"
 )
 
-# Estilos CSS personalizados para textos gigantes, alto contraste y botones táctiles cómodos
+# Estilos CSS mejorados: calendario visual limpio y rutina en tono tenue
 st.markdown(
     """
     <style>
@@ -22,52 +22,64 @@ st.markdown(
     .status-card-urgente {
         background-color: #FF6B6B;
         color: white;
-        padding: 25px;
+        padding: 22px;
         border-radius: 20px;
         text-align: center;
-        font-size: 2.2rem;
+        font-size: 2rem;
         font-weight: bold;
-        margin-bottom: 25px;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     .status-card-tranquilo {
         background-color: #51CF66;
         color: white;
-        padding: 25px;
-        border-radius: 20px;
-        text-align: center;
-        font-size: 2.2rem;
-        font-weight: bold;
-        margin-bottom: 25px;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-    .routine-card {
-        background-color: #339AF0;
-        color: white;
         padding: 22px;
         border-radius: 20px;
-        font-size: 1.8rem;
-        font-weight: bold;
         text-align: center;
-        margin-bottom: 25px;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    .appointment-card {
+    /* Estilo tenue y elegante para la rutina diaria (sin caja azul pesada) */
+    .routine-subtle {
+        background-color: #E9ECEF;
+        border-left: 8px solid #ADB5BD;
+        color: #495057;
+        padding: 18px 22px;
+        border-radius: 12px;
+        font-size: 1.4rem;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    /* Estilo tipo Calendario Tradicional para las citas */
+    .calendar-card {
         background-color: white;
-        border-left: 12px solid #7950F2;
+        border: 2px solid #E2E8F0;
+        border-radius: 16px;
         padding: 20px;
-        border-radius: 15px;
         margin-bottom: 15px;
-        font-size: 1.5rem;
-        color: #212529;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+        display: flex;
+        flex-direction: column;
+    }
+    .calendar-date-badge {
+        background-color: #7950F2;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        display: inline-block;
+        margin-bottom: 10px;
+        text-align: center;
     }
     p, label, span, div {
         font-size: 1.3rem !important;
     }
     .stButton>button {
-        font-size: 1.5rem !important;
-        padding: 12px 24px !important;
+        font-size: 1.4rem !important;
+        padding: 10px 20px !important;
         border-radius: 12px !important;
         font-weight: bold !important;
     }
@@ -89,7 +101,7 @@ if "citas" not in st.session_state:
         }
     ]
 
-# --- BLOQUE DE ESTADO DINÁMICO GIGANTE ---
+# --- BLOQUE DE ESTADO DINÁMICO ---
 hoy = datetime.date.today()
 manana = hoy + datetime.timedelta(days=1)
 
@@ -112,40 +124,53 @@ else:
         unsafe_allow_html=True,
     )
 
-# --- RUTINA FIJA DIARIA ---
+# --- RUTINA FIJA DIARIA EN TONO TENUE ---
 st.markdown(
-    '<div class="routine-card">🕒 Rutina Diaria Fija<br>🍽️ Almuerzo / Lonchera: 12:00 PM – 4:00 PM</div>',
+    """
+    <div class="routine-subtle">
+        <b>🕒 Rutina Diaria:</b> Almuerzo / Lonchera de <b>12:00 PM – 4:00 PM</b>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 
 st.divider()
 
-# --- SECCIÓN VISUAL DE CITAS ---
-st.markdown("### 📌 Próximos Eventos y Citas", unsafe_allow_html=True)
+# --- VISTA DE CALENDARIO VISUAL ---
+st.markdown(
+    "### 🗓️ Calendario de Eventos y Citas", unsafe_allow_html=True
+)
 
 if not st.session_state.citas:
-    st.info("No hay citas registradas por ahora.")
+    st.info("No hay citas registradas en el calendario.")
 else:
-    for cita in st.session_state.citas:
-        fecha_str = cita["fecha"].strftime("%A %d de %B, %Y")
+    # Ordenar citas por fecha
+    citas_ordenadas = sorted(st.session_state.citas, key=lambda x: x["fecha"])
+
+    for cita in citas_ordenadas:
+        fecha_str = cita["fecha"].strftime("%A, %d de %B de %Y")
         st.markdown(
             f"""
-            <div class="appointment-card">
-                <b>{cita['titulo']}</b><br>
-                📅 Fecha: {fecha_str}<br>
-                ⏰ Hora: {cita['hora']}
+            <div class="calendar-card">
+                <div><span class="calendar-date-badge">📅 {fecha_str}</span></div>
+                <div style="font-size: 1.6rem; font-weight: bold; color: #212529; margin-top: 5px;">
+                    📌 {cita['titulo']}
+                </div>
+                <div style="color: #6C757D; margin-top: 5px;">
+                    ⏰ Hora programada: <b>{cita['hora']}</b>
+                </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
 # --- PANEL DE GESTIÓN ---
-with st.expander("➕ Agregar una nueva cita (Familiar)"):
+with st.expander("➕ Agregar una nueva cita al calendario"):
     with st.form("form_cita"):
         nuevo_titulo = st.text_input("Nombre de la cita o evento:")
         nueva_fecha = st.date_input("Fecha de la cita:", value=hoy)
         nueva_hora = st.text_input("Hora (ej: 3:00 PM):", value="2:00 PM")
-        guardar = st.form_submit_button("Guardar Cita")
+        guardar = st.form_submit_button("Guardar en el Calendario")
 
         if guardar and nuevo_titulo:
             st.session_state.citas.append(
@@ -155,5 +180,5 @@ with st.expander("➕ Agregar una nueva cita (Familiar)"):
                     "hora": nueva_hora,
                 }
             )
-            st.success("¡Cita agregada con éxito!")
+            st.success("¡Cita agregada al calendario con éxito!")
             st.rerun()
