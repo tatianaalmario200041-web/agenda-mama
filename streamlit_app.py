@@ -21,7 +21,6 @@ st.markdown(
         font-weight: 800 !important;
         font-family: 'Georgia', serif;
     }
-    /* Alertas para hoy, mañana y pasado mañana */
     .alerta-proxima {
         background-color: #FEF9E7;
         border-left: 8px solid #F1C40F;
@@ -44,7 +43,6 @@ st.markdown(
         margin-bottom: 12px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    /* Celdas del calendario con TAMAÑO FIJO estricto */
     .celda-vacia {
         background-color: #FFFFFF;
         border: 1px solid #E5E7E9;
@@ -151,7 +149,7 @@ for fecha_obj, etiqueta in dias_a_revisar:
         st.markdown(
             f"""
             <div class="alerta-proxima">
-                {etiquette_str := etiqueta}: <b>{c['titulo']}</b><br>
+                {etiqueta}: <b>{c['titulo']}</b><br>
                 ⏰ Fecha: {fecha_obj.strftime('%d/%m/%Y')} a las <b>{c['hora']}</b>
             </div>
             """,
@@ -191,7 +189,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- CUADRÍCULA FIJA DEL CALENDARIO (TAMAÑO ESTRICTO Y LETRA ADAPTADA) ---
+# --- CUADRÍCULA FIJA DEL CALENDARIO ---
 cal = calendar.Calendar(firstweekday=6)  # Domingo primero
 dias_mes = cal.monthdayscalendar(
     st.session_state.anio_activo, st.session_state.mes_activo
@@ -227,7 +225,6 @@ for semana in dias_mes:
                     c for c in citas_del_mes if c["fecha"].day == dia
                 ]
                 if citas_en_dia:
-                    # Acortar títulos muy largos para que quepan perfecto sin estirar el cuadro
                     primer_titulo = citas_en_dia[0]["titulo"]
                     if len(primer_titulo) > 10:
                         primer_titulo = primer_titulo[:9] + "..."
@@ -270,7 +267,6 @@ else:
         dia_espanol = dias_semana_es.get(dia_ingles, dia_ingles)
         fecha_str = f"{dia_espanol}, {cita['fecha'].day} de {nombre_mes_actual}"
 
-        # Verificar si la hora está en la franja de almuerzo (12:00 PM - 4:00 PM)
         es_hora_almuerzo = False
         hora_str = cita["hora"]
         if any(
